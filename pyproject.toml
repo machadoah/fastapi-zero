@@ -1,15 +1,13 @@
-[project]
+[tool.poetry]
 name = "fastapi-zero"
 version = "0.1.0"
 description = "Curso do Dunossauro de FastApi Sincrono!"
-authors = [
-    {name = "Antonio Henrique Machado"}
-]
+authors = ["Antonio Henrique Machado"]
 readme = "README.md"
-requires-python = ">=3.12, <=3.13.1"
-dependencies = [
-    "fastapi[standard] (>=0.115.6,<0.116.0)"
-]
+
+[tool.poetry.dependencies]
+python = ">=3.12.*, <=3.13.*"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.9.2"
@@ -41,8 +39,5 @@ lint = 'ruff check . && ruff check . --diff'
 format = 'ruff check . --fix && ruff format .'
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-
-
