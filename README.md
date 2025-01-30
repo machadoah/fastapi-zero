@@ -4,7 +4,7 @@
 
 - [x] 00 - FastAPI do Zero
 - [x] 01 - Configuração do ambiente de desenvolvimento
-- [ ] 02 - Introdução ao desenvolvimento WEB
+- [x] 02 - Introdução ao desenvolvimento WEB
 - [ ] 03 - Estruturando o projeto e criando rotas CRUD
 - [ ] 04 - Configurando o banco de dados e gerenciando migrações com Alembic
 - [ ] 05 - Integrando Banco de Dados a API
