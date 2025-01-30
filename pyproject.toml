@@ -32,6 +32,7 @@ addopts = '-p no:warnings'
 
 [tool.taskipy.tasks]
 run = 'fastapi dev fastapi_zero/app.py'
+run_host = 'fastapi dev fastapi_zero/app.py --host 0.0.0.0'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=fastapi_zero -vv'
 post_test = 'coverage html'
