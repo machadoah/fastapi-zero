@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Annotated
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, HTTPException, status
@@ -18,6 +19,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 SECRET_KEY = 'your-secret-key'
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+T_Session = Annotated[Session, Depends(get_session)]
 
 
 def get_password_hash(password: str):
@@ -44,7 +47,7 @@ def create_access_token(data: dict):
 
 
 def get_current_user(
-    session: Session = Depends(get_session),
+    session: T_Session,
     token: str = Depends(oauth2_scheme),
 ):
     credentials_exception = HTTPException(
