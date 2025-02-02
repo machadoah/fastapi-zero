@@ -123,11 +123,22 @@ def update_user(
 
 
 @app.delete('/users/{user_id}', response_model=Message)
-def delete_user(user_id: int):
-    if user_id < 1 or user_id > len(database):
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    user_db = session.scalar(select(User).where(User.id == user_id))
+
+    if user_id < 0:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User not found!'
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='ID must be a positive integer',
         )
-    del database[user_id - 1]
+
+    if user_db is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User with id {user_id} not found!',
+        )
+
+    session.delete(user_db)
+    session.commit()
 
     return {'message': f'User with id {user_id} deleted!'}
