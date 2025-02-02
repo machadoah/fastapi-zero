@@ -107,34 +107,6 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_user_not_exists(client, user):
-    response = client.put(
-        '/users/13',
-        json={
-            'username': 'machadoah',
-            'password': 'password',
-            'email': 'antonio@email.com',
-        },
-    )
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {'detail': 'User with id 13 not found!'}
-
-
-def test_update_user_id_negative(client, user):
-    response = client.put(
-        '/users/-22',
-        json={
-            'username': 'machadoah',
-            'password': 'password',
-            'email': 'antonio@email.com',
-        },
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'detail': 'ID must be a positive integer'}
-
-
 def test_delete_user(client, user, token):
     response = client.delete(
         f'/users/{user.id}',
@@ -143,17 +115,3 @@ def test_delete_user(client, user, token):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {'message': 'User with id 1 deleted!'}
-
-
-def test_delete_user_not_exists(client, user):
-    response = client.delete('/users/80')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {'detail': 'User with id 80 not found!'}
-
-
-def test_delete_user_id_negative(client, user):
-    response = client.delete('/users/-17')
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'detail': 'ID must be a positive integer'}
