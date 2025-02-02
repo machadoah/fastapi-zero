@@ -76,13 +76,22 @@ def read_users(
 
 
 @app.get('/users/{user_id}', response_model=UserPublic)
-def read_user_by_id(user_id: int):
-    if user_id < 1 or user_id > len(database):
+def read_user_by_id(user_id: int, session: Session = Depends(get_session)):
+    if user_id < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='ID must be a positive integer',
+        )
+
+    user = session.scalar(select(User).where(User.id == user_id))
+
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with id {user_id} not found!',
         )
-    return database[user_id - 1]
+
+    return user
 
 
 @app.put('/users/{user_id}', response_model=UserPublic)
