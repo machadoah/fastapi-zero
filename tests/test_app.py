@@ -104,13 +104,15 @@ def test_read_users_by_negative(client):
     assert response.json() == {'detail': 'ID must be a positive integer'}
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/users/1',
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'machadoah',
             'password': 'password',
             'email': 'antonio@email.com',
+            'id': 1,
         },
     )
 
@@ -149,8 +151,11 @@ def test_update_user_id_negative(client, user):
     assert response.json() == {'detail': 'ID must be a positive integer'}
 
 
-def test_delete_user(client, user):
-    response = client.delete('/users/1')
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {'message': 'User with id 1 deleted!'}
@@ -168,3 +173,16 @@ def test_delete_user_id_negative(client, user):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {'detail': 'ID must be a positive integer'}
+
+
+def test_get_token(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': user.clean_password},
+    )
+
+    token = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert token['token_type'] == 'Bearer'
+    assert 'access_token' in token
