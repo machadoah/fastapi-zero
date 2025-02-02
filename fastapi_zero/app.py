@@ -11,6 +11,7 @@ from fastapi_zero.schemas import (
     UserPublic,
     UserSchema,
 )
+from fastapi_zero.security import get_password_hash
 
 app = FastAPI()
 
@@ -58,7 +59,9 @@ def crete_user(user: UserSchema, session: Session = Depends(get_session)):
             )
 
     db_user = User(
-        username=user.username, password=user.password, email=user.email
+        username=user.username,
+        password=get_password_hash(user.password),
+        email=user.email,
     )
 
     session.add(db_user)
@@ -114,7 +117,7 @@ def update_user(
         )
 
     user_db.username = user.username
-    user_db.password = user.password
+    user_db.password = get_password_hash(user.password)
     user_db.email = user.email
 
     session.commit()
