@@ -84,7 +84,7 @@ def update_user(
     user_id: int,
     user: UserSchema,
     session: T_Session,
-    current_user: T_CurrentUser,
+    current_user: T_CurrentUser,  # o usuário que está fazendo a operação
 ):
     if current_user.id != user_id:
         raise HTTPException(
