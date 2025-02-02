@@ -1,17 +1,18 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.responses import HTMLResponse
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from fastapi_zero.database import get_session
+from fastapi_zero.models import User
 from fastapi_zero.schemas import (
     Message,
-    UserDB,
     UserList,
     UserPublic,
     UserSchema,
 )
 
 app = FastAPI()
-
-database = []
 
 
 @app.get('/', status_code=status.HTTP_200_OK, response_model=Message)
@@ -64,7 +65,7 @@ def crete_user(user: UserSchema, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(db_user)
 
-    return user_with_id
+    return db_user
 
 
 @app.get('/users/', response_model=UserList)
