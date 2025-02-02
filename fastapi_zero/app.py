@@ -95,16 +95,31 @@ def read_user_by_id(user_id: int, session: Session = Depends(get_session)):
 
 
 @app.put('/users/{user_id}', response_model=UserPublic)
-def update_user(user_id: int, user: UserSchema):
-    if user_id < 1 or user_id > len(database):
+def update_user(
+    user_id: int, user: UserSchema, session: Session = Depends(get_session)
+):
+    user_db = session.scalar(select(User).where(User.id == user_id))
+
+    if user_id < 0:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User not found!'
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='ID must be a positive integer',
         )
 
-    user_with_id = UserDB(id=user_id, **user.model_dump())
-    database[user_id - 1] = user_with_id
+    if user_db is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User with id {user_id} not found!',
+        )
 
-    return user_with_id
+    user_db.username = user.username
+    user_db.password = user.password
+    user_db.email = user.email
+
+    session.commit()
+    session.refresh(user_db)
+
+    return user_db
 
 
 @app.delete('/users/{user_id}', response_model=Message)
