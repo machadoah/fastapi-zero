@@ -8,6 +8,9 @@ from fastapi_zero.schemas import (
 
 app = FastAPI()
 
+app.include_router(auth.router)
+app.include_router(users.router)
+
 
 @app.get('/', status_code=status.HTTP_200_OK, response_model=Message)
 def read_root():
