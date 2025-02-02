@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.responses import HTMLResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -7,11 +8,17 @@ from fastapi_zero.database import get_session
 from fastapi_zero.models import User
 from fastapi_zero.schemas import (
     Message,
+    Token,
     UserList,
     UserPublic,
     UserSchema,
 )
-from fastapi_zero.security import get_password_hash
+from fastapi_zero.security import (
+    create_access_token,
+    get_current_user,
+    get_password_hash,
+    verify_password,
+)
 
 app = FastAPI()
 
@@ -73,7 +80,9 @@ def crete_user(user: UserSchema, session: Session = Depends(get_session)):
 
 @app.get('/users/', response_model=UserList)
 def read_users(
-    limit: int = 10, skip: int = 0, session: Session = Depends(get_session)
+    limit: int = 10,
+    skip: int = 0,
+    session: Session = Depends(get_session),
 ):
     users = session.scalars(select(User).limit(limit).offset(skip))
     return {'users': users}
@@ -100,49 +109,64 @@ def read_user_by_id(user_id: int, session: Session = Depends(get_session)):
 
 @app.put('/users/{user_id}', response_model=UserPublic)
 def update_user(
-    user_id: int, user: UserSchema, session: Session = Depends(get_session)
+    user_id: int,
+    user: UserSchema,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
 ):
-    user_db = session.scalar(select(User).where(User.id == user_id))
-
-    if user_id < 0:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='ID must be a positive integer',
+            detail='No enough permissions',
         )
 
-    if user_db is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with id {user_id} not found!',
-        )
-
-    user_db.username = user.username
-    user_db.password = get_password_hash(user.password)
-    user_db.email = user.email
+    current_user.username = user.username
+    current_user.password = get_password_hash(user.password)
+    current_user.email = user.email
 
     session.commit()
-    session.refresh(user_db)
+    session.refresh(current_user)
 
-    return user_db
+    return current_user
 
 
 @app.delete('/users/{user_id}', response_model=Message)
-def delete_user(user_id: int, session: Session = Depends(get_session)):
-    user_db = session.scalar(select(User).where(User.id == user_id))
-
-    if user_id < 0:
+def delete_user(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='ID must be a positive integer',
+            detail='No enough permissions',
         )
 
-    if user_db is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with id {user_id} not found!',
-        )
-
-    session.delete(user_db)
+    session.delete(current_user)
     session.commit()
 
     return {'message': f'User with id {user_id} deleted!'}
+
+
+@app.post('/token', response_model=Token)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = session.scalar(select(User).where(User.email == form_data.username))
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Incorrect email or password',
+        )
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Incorrect email or password',
+        )
+
+    access_token = create_access_token(data={'sub': user.email})
+
+    return {'access_token': access_token, 'token_type': 'bearer'}
