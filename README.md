@@ -7,8 +7,8 @@
 - [x] 02 - Introdução ao desenvolvimento WEB
 - [x] 03 - Estruturando o projeto e criando rotas CRUD
 - [x] 04 - Configurando o banco de dados e gerenciando migrações com Alembic
-- [ ] 05 - Integrando Banco de Dados a API
-- [ ] 06 - Autenticação e Autorização com JWT
+- [x] 05 - Integrando Banco de Dados a API
+- [x] 06 - Autenticação e Autorização com JWT
 - [ ] 07 - Refatorando a Estrutura do Projeto
 - [ ] 08 - Tornando o sistema de autenticação robusto
 - [ ] 09 - Criando rotas CRUD para gerenciamento de tarefas em FastAPI
