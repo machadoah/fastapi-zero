@@ -10,7 +10,7 @@
 - [x] 05 - Integrando Banco de Dados a API
 - [x] 06 - Autenticação e Autorização com JWT
 - [x] 07 - Refatorando a Estrutura do Projeto
-- [ ] 08 - Tornando o sistema de autenticação robusto
+- [x] 08 - Tornando o sistema de autenticação robusto
 - [ ] 09 - Criando rotas CRUD para gerenciamento de tarefas em FastAPI
 - [ ] 10 - Dockenizando a nossa aplicação e introduzindo o PostgreSQK
 - [ ] 11 - Automatizando os testes com CI (Integração Continua)
