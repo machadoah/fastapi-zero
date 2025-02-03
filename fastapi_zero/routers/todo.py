@@ -21,7 +21,9 @@ T_Session = Annotated[Session, Depends(get_session)]
 T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-@router.post('/', response_model=TodoPublic)
+@router.post(
+    '/', response_model=TodoPublic, status_code=status.HTTP_201_CREATED
+)
 def create_todo(todo: TodoSchema, user: T_CurrentUser, session: T_Session):
     db_todo = Todo(
         title=todo.title,
