@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError, decode, encode
+from jwt.exceptions import ExpiredSignatureError
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -91,8 +92,10 @@ def get_current_user(
         # cria um objeto TokenData com o username
         token_data = TokenData(username=username)
 
-    # se não conseguir decodificar
     except DecodeError:
+        raise credentials_exception
+
+    except ExpiredSignatureError:
         raise credentials_exception
 
     # procura no banco de dados o usuário com o email do token
