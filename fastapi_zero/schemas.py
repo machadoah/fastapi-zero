@@ -49,3 +49,13 @@ class TodoSchema(BaseModel):
 class TodoPublic(TodoSchema):
     id: int
     model_config = ConfigDict(from_attributes=True)
+
+
+class TodoList(BaseModel):
+    todos: list[TodoPublic]
+
+
+class TodoUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    state: TodoState | None = None
