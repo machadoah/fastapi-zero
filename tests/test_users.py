@@ -27,7 +27,7 @@ def test_create_user_with_email_already_exists(client, user):
         json={
             'username': 'testusername',
             'password': 'password',
-            'email': 'teste@test.com',
+            'email': user.email,
         },
     )
 
@@ -39,7 +39,7 @@ def test_create_user_with_username_already_exists(client, user):
     response = client.post(
         '/users/',
         json={
-            'username': 'Teste',
+            'username': user.username,
             'password': 'password',
             'email': 'teste2@test.com',
         },
@@ -107,15 +107,15 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_wrong_user(client, user, token):
+def test_update_wrong_user(client, user, token, other_user):
     response = client.put(
-        f'/users/{user.id + 13}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'machadoah',
             'password': 'password',
             'email': 'antonio@email.com',
-            'id': user.id + 13,
+            'id': other_user.id,
         },
     )
 
@@ -133,9 +133,9 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User with id 1 deleted!'}
 
 
-def test_delete_wrong_user(client, user, token):
+def test_delete_wrong_user(client, user, token, other_user):
     response = client.delete(
-        f'/users/{user.id + 13}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
 
