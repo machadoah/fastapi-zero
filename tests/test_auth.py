@@ -35,3 +35,23 @@ def test_token_expired_after_time(client, user):
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Could not validate credentials'}
+
+
+def test_token_wrong_password(client, user):
+    response = client.post(
+        '/auth/token',
+        data={'username': user.email, 'password': 'wrong_password'},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect email or password'}
+
+
+def test_token_wrong_email(client, user):
+    response = client.post(
+        '/auth/token',
+        data={'username': 'wrong_email', 'password': user.clean_password},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect email or password'}
